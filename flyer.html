@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AriRent - Premium San Diego Student Housing</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #fafafa;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .flyer {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            height: 500px;
+            background: linear-gradient(135deg, rgba(14, 116, 144, 0.95), rgba(42, 157, 143, 0.9)),
+                        url('https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1600&q=80') center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 2;
+            max-width: 800px;
+            padding: 0 40px;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 72px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .hero .subtitle {
+            font-size: 24px;
+            font-weight: 300;
+            opacity: 0.95;
+            letter-spacing: 0.5px;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            background: #0e7490;
+            color: white;
+        }
+
+        .stat {
+            padding: 40px;
+            text-align: center;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat:last-child {
+            border-right: none;
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            font-weight: 400;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* About Section */
+        .about-section {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 60px;
+            padding: 80px 60px;
+            align-items: center;
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            font-size: 18px;
+            color: #0e7490;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .about-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            color: #0e7490;
+            margin-bottom: 24px;
+            line-height: 1.2;
+        }
+
+        .about-content p {
+            font-size: 18px;
+            color: #4a5568;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        /* Highlight Callout */
+        .highlight-callout {
+            background: linear-gradient(135deg, #0e7490, #2a9d8f);
+            padding: 60px;
+            margin: 0;
+            color: white;
+            text-align: center;
+        }
+
+        .highlight-callout h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .highlight-callout p {
+            font-size: 22px;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            opacity: 0.95;
+        }
+
+        .highlight-callout .emphasis {
+            font-weight: 600;
+            font-size: 24px;
+            display: block;
+            margin-top: 20px;
+            border-top: 2px solid rgba(255, 255, 255, 0.3);
+            padding-top: 20px;
+        }
+
+        /* Map Section */
+        .map-section {
+            background: #f8fafc;
+            padding: 80px 60px;
+        }
+
+        .map-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            color: #0e7490;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .map-section .subtitle {
+            text-align: center;
+            font-size: 18px;
+            color: #64748b;
+            margin-bottom: 40px;
+        }
+
+        #map {
+            height: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .map-legend {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+            color: #475569;
+        }
+
+        .legend-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .school-icon {
+            background: #dc2626;
+            color: white;
+        }
+
+        .rental-icon {
+            background: #0e7490;
+            color: white;
+        }
+
+        /* Services Grid */
+        .services-section {
+            padding: 80px 60px;
+        }
+
+        .services-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            color: #0e7490;
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .service-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .service-image {
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+        }
+
+        .service-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .service-content {
+            padding: 32px;
+        }
+
+        .service-content h3 {
+            font-size: 24px;
+            color: #0e7490;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .service-content ul {
+            list-style: none;
+        }
+
+        .service-content li {
+            padding: 10px 0;
+            padding-left: 28px;
+            position: relative;
+            color: #475569;
+            font-size: 16px;
+        }
+
+        .service-content li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #2a9d8f;
+            font-weight: bold;
+        }
+
+        /* Features Section */
+        .features-section {
+            background: #f8fafc;
+            padding: 80px 60px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .feature {
+            text-align: center;
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #0e7490, #2a9d8f);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 36px;
+        }
+
+        .feature h4 {
+            font-size: 18px;
+            color: #0e7490;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .feature p {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        /* Gallery Section */
+        .gallery-section {
+            padding: 80px 60px;
+        }
+
+        .gallery-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            color: #0e7490;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .gallery-section .subtitle {
+            text-align: center;
+            font-size: 18px;
+            color: #64748b;
+            margin-bottom: 40px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .gallery-item {
+            height: 300px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        /* Contact Section */
+        .contact-section {
+            background: linear-gradient(135deg, #0e7490, #2a9d8f);
+            color: white;
+            padding: 80px 60px;
+            text-align: center;
+        }
+
+        .contact-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .contact-section .subtitle {
+            font-size: 20px;
+            opacity: 0.95;
+            margin-bottom: 50px;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto 40px;
+        }
+
+        .contact-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .contact-item .icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .contact-item .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+
+        .contact-item .value {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: white;
+            color: #0e7490;
+            padding: 18px 48px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .about-section {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .profile-image {
+                height: 400px;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .contact-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 48px;
+            }
+
+            .hero .subtitle {
+                font-size: 18px;
+            }
+
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .stat {
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .stat:last-child {
+                border-bottom: none;
+            }
+
+            .about-section,
+            .map-section,
+            .services-section,
+            .features-section,
+            .gallery-section,
+            .contact-section {
+                padding: 60px 30px;
+            }
+
+            .highlight-callout {
+                padding: 40px 30px;
+            }
+
+            .highlight-callout h2 {
+                font-size: 32px;
+            }
+
+            .highlight-callout p {
+                font-size: 18px;
+            }
+
+            .highlight-callout .emphasis {
+                font-size: 20px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .service-card:hover,
+            .gallery-item:hover img,
+            .cta-button:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="flyer">
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="hero-content">
+                <h1>AriRent</h1>
+                <p class="subtitle">Premium Housing Solutions for International Students in San Diego</p>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-number">3+</div>
+                <div class="stat-label">Properties Managed</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Occupancy Rate</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">2</div>
+                <div class="stat-label">Major Universities</div>
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="about-section">
+            <div class="profile-image">
+                <div class="profile-placeholder">
+                    <p><strong>Replace with Ari's professional photo</strong><br>Recommended: High-quality headshot or lifestyle photo</p>
+                </div>
+            </div>
+            <div class="about-content">
+                <h2>Bridging the Gap Between Students & Homeowners</h2>
+                <p>
+                    I specialize in connecting international students from prestigious families with premium
+                    beach-adjacent properties in San Diego. With deep ties to the international student community
+                    and a proven track record of successful placements, I make the housing process seamless for both students and property owners.
+                </p>
+                <p>
+                    My unique understanding of both markets allows me to create win-win situations: students get
+                    beautiful, hassle-free housing without the cosigner requirements, while property owners enjoy
+                    reliable tenants during the academic year and flexibility to Airbnb during summer months.
+                </p>
+            </div>
+        </div>
+
+        <!-- Highlight Callout -->
+        <div class="highlight-callout">
+            <h2>Zero Hassle for Both Parties</h2>
+            <p>
+                I personally manage ALL communication between tenants and landlords.
+                You'll never have to worry about language barriers, time zone differences,
+                or miscommunications. I'm your single point of contact for everything.
+            </p>
+            <span class="emphasis">Focus on what matters. I'll handle the rest.</span>
+        </div>
+
+        <!-- Map Section -->
+        <div class="map-section">
+            <h2>Prime San Diego Locations</h2>
+            <p class="subtitle">Beach communities near USD & SDSU</p>
+            <div id="map"></div>
+            <div class="map-legend">
+                <div class="legend-item">
+                    <div class="legend-icon school-icon">🎓</div>
+                    <span>Universities (USD & SDSU)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon rental-icon">🏠</div>
+                    <span>Current Rental Properties</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Grid -->
+        <div class="services-section">
+            <h2>What I Offer</h2>
+            <div class="services-grid">
+                <!-- For Landlords -->
+                <div class="service-card">
+                    <div class="service-image">
+                        <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80" alt="Beautiful home">
+                    </div>
+                    <div class="service-content">
+                        <h3>For Property Owners</h3>
+                        <ul>
+                            <li><strong>I handle ALL tenant communication</strong> - your single point of contact</li>
+                            <li>Reliable international students from affluent families</li>
+                            <li>Full occupancy during 9-10 month academic year</li>
+                            <li>Flexibility to Airbnb during summer months</li>
+                            <li>Pre-vetted, responsible tenants</li>
+                            <li>Zero language barriers or miscommunications</li>
+                            <li>Maximize revenue, minimize vacancy</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- For Students -->
+                <div class="service-card">
+                    <div class="service-image">
+                        <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&q=80" alt="Students studying">
+                    </div>
+                    <div class="service-content">
+                        <h3>For International Students</h3>
+                        <ul>
+                            <li><strong>I handle ALL landlord communication</strong> - no stress, no worries</li>
+                            <li>No cosigner required - we understand your needs</li>
+                            <li>Prime beach and campus-adjacent locations</li>
+                            <li>Fully furnished, move-in ready homes</li>
+                            <li>Flexible lease terms matching your semester</li>
+                            <li>Dedicated local support throughout your stay</li>
+                            <li>Safe, comfortable housing near universities</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features-section">
+            <div class="features-grid">
+                <div class="feature">
+                    <div class="feature-icon">🤝</div>
+                    <h4>Trusted Network</h4>
+                    <p>Established relationships with students and property owners</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">✨</div>
+                    <h4>Proven Success</h4>
+                    <p>Track record of successful, long-term placements</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📍</div>
+                    <h4>Local Expertise</h4>
+                    <p>Deep knowledge of San Diego neighborhoods</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">💬</div>
+                    <h4>Full Communication Management</h4>
+                    <p>I handle all interactions between tenants and landlords</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gallery Section -->
+        <div class="gallery-section">
+            <h2>San Diego Living</h2>
+            <p class="subtitle">Experience the best of beach life and academics</p>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1527631746610-bca00a040d60?w=800&q=80" alt="Mission Beach">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=800&q=80" alt="Pacific Beach">
+                </div>
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1519046904884-53103b34b206?w=800&q=80" alt="Beach lifestyle">
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="contact-section">
+            <h2>Let's Connect</h2>
+            <p class="subtitle">Ready to find your perfect housing solution?</p>
+
+            <div class="contact-grid">
+                <div class="contact-item">
+                    <div class="icon">📱</div>
+                    <div class="label">Phone</div>
+                    <div class="value">(619) 555-0123</div>
+                </div>
+                <div class="contact-item">
+                    <div class="icon">✉️</div>
+                    <div class="label">Email</div>
+                    <div class="value">ari@arirent.com</div>
+                </div>
+                <div class="contact-item">
+                    <div class="icon">📸</div>
+                    <div class="label">Instagram</div>
+                    <div class="value">@arirent_sd</div>
+                </div>
+                <div class="contact-item">
+                    <div class="icon">🌐</div>
+                    <div class="label">Website</div>
+                    <div class="value">www.arirent.com</div>
+                </div>
+            </div>
+
+            <a href="mailto:ari@arirent.com" class="cta-button">Get In Touch</a>
+        </div>
+    </div>
+
+    <script>
+        // Initialize map centered on San Diego beach area
+        var map = L.map('map').setView([32.7800, -117.2340], 12);
+
+        // Add tile layer (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Custom icons
+        var schoolIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: "<div style='background-color:#dc2626;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-size:20px;'>🎓</div>",
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
+        });
+
+        var rentalIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: "<div style='background-color:#0e7490;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-size:20px;'>🏠</div>",
+            iconSize: [40, 40],
+            iconAnchor: [20, 20]
+        });
+
+        // University markers
+        L.marker([32.7719, -117.1888], {icon: schoolIcon})
+            .bindPopup('<strong>University of San Diego (USD)</strong><br>5998 Alcalá Park')
+            .addTo(map);
+
+        L.marker([32.7757, -117.0719], {icon: schoolIcon})
+            .bindPopup('<strong>San Diego State University (SDSU)</strong><br>5500 Campanile Dr')
+            .addTo(map);
+
+        // Rental property markers (placeholders - replace with actual locations)
+        L.marker([32.7701, -117.2528], {icon: rentalIcon})
+            .bindPopup('<strong>Property 1</strong><br>Mission Beach Area<br><em>Replace with actual address</em>')
+            .addTo(map);
+
+        L.marker([32.7969, -117.2530], {icon: rentalIcon})
+            .bindPopup('<strong>Property 2</strong><br>Pacific Beach Area<br><em>Replace with actual address</em>')
+            .addTo(map);
+
+        L.marker([32.7845, -117.2345], {icon: rentalIcon})
+            .bindPopup('<strong>Property 3</strong><br>Beach Area<br><em>Replace with actual address</em>')
+            .addTo(map);
+
+        // Add a subtle boundary for the beach areas
+        var beachArea = L.rectangle([
+            [32.7500, -117.2700],  // Southwest corner
+            [32.8100, -117.2200]   // Northeast corner
+        ], {
+            color: '#2a9d8f',
+            weight: 2,
+            fillOpacity: 0.05,
+            dashArray: '5, 10'
+        }).addTo(map);
+    </script>
+</body>
+</html>
