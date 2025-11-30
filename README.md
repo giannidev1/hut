@@ -1,6 +1,6 @@
-# AriRent Professional Flyer
+# Hut Professional Flyer
 
-A stunning, professionally designed flyer for AriRent - connecting international students with premium San Diego beach housing.
+A stunning, professionally designed flyer for Hut - connecting international students with premium San Diego beach housing.
 
 ## Features
 
@@ -142,7 +142,7 @@ Example:
 If you have `wkhtmltopdf` installed:
 
 ```bash
-cd AriRent
+cd Hut
 wkhtmltopdf --enable-local-file-access flyer.html flyer.pdf
 ```
 
